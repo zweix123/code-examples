@@ -12,3 +12,5 @@ if (NOT CMAKE_BUILD_TYPE)
 endif()
 
 project(code-exmaples VERSION 0.0.1 LANGUAGES C CXX)
+
+add_subdirectory(./test)
