@@ -24,7 +24,7 @@ class HashTable {
     constexpr static const int MULIPLE = 2;
 
   public:
-    explicit HashTable() : data_(size_, BucketType::Empty) {}
+    explicit HashTable() : data_(size_, BucketType::Empty), hasher_(Hasher()) {}
     HashTable(const HashTable<T, Hasher> &that) = default;
     HashTable(HashTable<T, Hasher> &&that) = default;
     HashTable<T, Hasher> &operator=(const HashTable<T, Hasher> &that) = default;
@@ -70,7 +70,7 @@ class HashTable {
     }
 
   public:
-    bool contain(const T &value) {
+    bool contains(const T &value) {
         rlock lock(mutex_);
         auto *entry = find(value);
         return std::get_if<T>(entry) != nullptr;

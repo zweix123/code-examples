@@ -1,82 +1,154 @@
 #include "OpenAddressing.h"
+#include <algorithm>
 #include <cassert>
+#include <cstring>
+#include <random>
 #include <thread>
+#include <unordered_set>
 #include <vector>
 
-int main() {
-    {
-        auto ht = HashTable<int>();
+#include <gtest/gtest.h>
 
-        ht.insert(1);
+template<typename T>
+using Set = HashTable<T>;
 
-        assert(ht.contain(1));
+template<typename K, typename V>
+using Map = HashTable<std::pair<K, V>, std::hash<K>>;
 
-        assert(!ht.contain(2));
-        ht.insert(2);
-        assert(ht.contain(2));
+TEST(OpenAddressingTest, BasicOperations) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(-100, 100);
+    auto random = [&dis, &gen]() {
+        return dis(gen);
+    };
 
-        std::vector<int> dummy = {3, 42};
-        for (auto ele : dummy) { ht.insert(ele); }
-        for (auto ele : dummy) { assert(ht.contain(ele)); }
+    auto my_ht = Set<int>();
+    auto std_ht = std::unordered_set<int>();
 
-        assert(!ht.contain(6));
-        for (auto ele : dummy) {
-            ht.erase(ele);
-            assert(!ht.contain(ele));
+    for (int i = 0; i < 100; ++i) {
+        auto value = random();
+
+        my_ht.insert(value);
+        std_ht.insert(value);
+
+        for (int j = -100; j <= 100; ++j) {
+            EXPECT_EQ(my_ht.contains(j), std_ht.contains(j));
         }
     }
-    {
-        HashTable<int> ht;
-        assert(ht.contain(1) == false);
-        assert(ht.contain(2) == false);
-        assert(ht.contain(3) == false);
 
-        ht.insert(1);
-        ht.insert(2);
-        ht.insert(3);
+    for (int i = 0; i < 100; ++i) {
+        auto value = random();
 
-        ht.erase(2);
+        my_ht.erase(value);
+        std_ht.erase(value);
 
-        assert(ht.contain(1) == true);
-        assert(ht.contain(2) == false);
-    }
-    {
-        HashTable<std::string> ht;
-        assert(ht.contain("hello") == false);
-        assert(ht.contain("world") == false);
-
-        ht.insert("hello");
-        ht.insert("world");
-    }
-    {
-        const int THREAD_COUNT = 10;
-        const int INSERT_COUNT = 100000;
-        const int FIND_COUNT = 100000;
-
-        HashTable<int> ht;
-        std::vector<std::thread> threads;
-
-        // 创建多个线程并发执行插入操作
-        for (int i = 0; i < THREAD_COUNT; ++i) {
-            threads.emplace_back([&]() {
-                for (int j = 0; j < INSERT_COUNT; ++j) { ht.insert(j); }
-            });
+        for (int j = -100; j <= 100; ++j) {
+            EXPECT_EQ(my_ht.contains(j), std_ht.contains(j));
         }
+    }
+}
 
-        // 等待所有线程执行完成
-        for (auto &t : threads) { t.join(); }
+TEST(OpenAddressingTest, BasicOperations_string) {
+    constexpr char const *const CHARS = "abcdefghijklmnopqrstuvwxyz"
+                                        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                        "0123456789";
 
-        // 创建多个线程并发执行查找操作
-        threads.clear();
-        for (int i = 0; i < THREAD_COUNT; ++i) {
-            threads.emplace_back([&]() {
-                for (int j = 0; j < FIND_COUNT; ++j) { ht.contain(j); }
-            });
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis_length(0, 10);
+    std::uniform_int_distribution<> dis_index(0, strlen(CHARS));
+    auto random = [&gen, &dis_length, &dis_index, &CHARS]() {
+        int lenght = dis_length(gen);
+        std::string res;
+        for (int i = 0; i < lenght; ++i) res += CHARS[dis_index(gen)];
+        return res;
+    };
+    auto sample = [&gen]<typename T>(const std::vector<T> &vec) { // C++20
+        std::uniform_int_distribution<> dis(0, vec.size());
+        return vec[dis(gen)];
+    };
+
+    auto my_ht = Set<std::string>();
+    auto std_ht = std::unordered_set<std::string>();
+
+    std::vector<std::string> values;
+
+    for (int i = 0; i < 100; ++i) {
+        auto value = random();
+        values.push_back(value);
+
+        my_ht.insert(value);
+        std_ht.insert(value);
+
+        for (int j = 0; j < 50; ++j) {
+            auto value = random();
+            EXPECT_EQ(my_ht.contains(value), std_ht.contains(value));
         }
-
-        // 等待所有线程执行完成
-        for (auto &t : threads) { t.join(); }
+        for (const auto &value : values) {
+            EXPECT_EQ(my_ht.contains(value), std_ht.contains(value));
+        }
     }
 
-    return 0;
+    {
+        auto rng = std::default_random_engine{};
+        std::shuffle(values.begin(), values.end(), rng);
+    }
+
+    for (int i = 0; i < 50; ++i) {
+        auto value = random();
+
+        my_ht.erase(value);
+        std_ht.erase(value);
+
+        for (int j = 0; j < 50; ++j) {
+            auto value = random();
+            EXPECT_EQ(my_ht.contains(value), std_ht.contains(value));
+        }
+        for (const auto &value : values) {
+            EXPECT_EQ(my_ht.contains(value), std_ht.contains(value));
+        }
+    }
+
+    for (int i = 0; i < 50; ++i) {
+        auto value = std::move(values.back());
+        values.pop_back();
+
+        my_ht.erase(value);
+        std_ht.erase(value);
+
+        for (int j = 0; j < 50; ++j) {
+            auto value = random();
+            EXPECT_EQ(my_ht.contains(value), std_ht.contains(value));
+        }
+        for (const auto &value : values) {
+            EXPECT_EQ(my_ht.contains(value), std_ht.contains(value));
+        }
+    }
+}
+
+TEST(OpenAddressingTest, MultiThread) {
+    const int THREAD_COUNT = 10;
+    const int INSERT_COUNT = 100000;
+    const int FIND_COUNT = 100000;
+
+    HashTable<int> ht;
+    std::vector<std::thread> threads;
+
+    for (int i = 0; i < THREAD_COUNT; ++i) {
+        threads.emplace_back([&]() {
+            for (int j = 0; j < INSERT_COUNT; ++j) { ht.insert(j); }
+        });
+    }
+
+    for (auto &t : threads) { t.join(); }
+
+    threads.clear();
+    for (int i = 0; i < THREAD_COUNT; ++i) {
+        threads.emplace_back([&]() {
+            for (int j = 0; j < FIND_COUNT; ++j) { ht.contains(j); }
+        });
+    }
+
+    for (auto &t : threads) { t.join(); }
 }

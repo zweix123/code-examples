@@ -19,7 +19,7 @@ if sys.platform == "win32":
         elif isinstance(node, str):
             node += ".exe"
         else:
-            assert False, "Impossible branch"
+            assert False, type(node)
         return node
 
     test_cmds = dfs(test_cmds)
