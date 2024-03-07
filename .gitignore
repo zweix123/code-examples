@@ -78,3 +78,6 @@ palette.map
 
 # public/index.html for httpd
 public/
+
+# Python
+.mypy_cache

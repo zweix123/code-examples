@@ -1,0 +1,44 @@
+import sys
+
+from dryads import Dryads, DryadsFlag  # type: ignore
+
+test_cmds = {
+    DryadsFlag.PrefixCmd: "cd ./build/test",
+    "warm-up": "./warmup",
+    "HashTable": "HashTable/OpenAddressing",
+}
+
+if sys.platform == "win32":
+
+    def dfs(node: dict):
+        if isinstance(node, dict):
+            for k, v in node.items():
+                if isinstance(k, DryadsFlag):
+                    continue
+                node[k] = dfs(v)
+        elif isinstance(node, str):
+            node += ".exe"
+        else:
+            assert False, "Impossible branch"
+        return node
+
+    test_cmds = dfs(test_cmds)
+
+
+CMDS = {
+    "init": [
+        "git submodule init",
+        "git submodule update",
+    ],
+    "cmake": [
+        "cmake -S . -B build",
+    ],
+    "make": [
+        "cmake --build build",
+    ],
+    "test-all": "cmake --build build --target test",
+    "test": test_cmds,
+}
+
+
+Dryads(CMDS)

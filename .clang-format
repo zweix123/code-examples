@@ -1,10 +1,9 @@
----
 BasedOnStyle: LLVM
 IndentWidth: 4
 TabWidth: 4
 Language: Cpp
 AlignAfterOpenBracket: AlwaysBreak # BlockIndent
-AlignConsecutiveBitFields: true
+# AlignConsecutiveBitFields: true
 AlignConsecutiveMacros: true
 AlignEscapedNewlines: Left
 AlignOperands: true
@@ -14,7 +13,7 @@ AllowAllConstructorInitializersOnNextLine: true
 AllowAllParametersOfDeclarationOnNextLine: true
 AllowShortBlocksOnASingleLine: Always
 AllowShortCaseLabelsOnASingleLine: false
-AllowShortEnumsOnASingleLine: true
+# AllowShortEnumsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: InlineOnly
 AllowShortIfStatementsOnASingleLine: Always
 AllowShortLambdasOnASingleLine: Inline
@@ -25,7 +24,7 @@ BinPackArguments: true
 BinPackParameters: false
 BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeBraces: Attach
-BreakBeforeConceptDeclarations: true
+# BreakBeforeConceptDeclarations: true
 BreakBeforeTernaryOperators: true
 BreakConstructorInitializers: BeforeComma
 BreakInheritanceList: BeforeComma
@@ -36,14 +35,14 @@ ConstructorInitializerAllOnOneLineOrOnePerLine: true
 ConstructorInitializerIndentWidth: 4
 ContinuationIndentWidth: 4
 Cpp11BracedListStyle: true
-EmptyLineBeforeAccessModifier: Always
+# EmptyLineBeforeAccessModifier: Always
 FixNamespaceComments: true
 IndentCaseLabels: true
-IndentExternBlock: Indent
+# IndentExternBlock: Indent
 IndentGotoLabels: true
 IndentPPDirectives: None
 # IndentPragmas: false
-IndentRequires: true
+# IndentRequires: true
 IndentWrappedFunctionNames: false
 KeepEmptyLinesAtTheStartOfBlocks: false
 MaxEmptyLinesToKeep: 1
@@ -51,7 +50,7 @@ NamespaceIndentation: Inner
 PointerAlignment: Right
 ReflowComments: true
 # RequiresClausePosition: OwnLine
-ShortNamespaceLines: 5
+# ShortNamespaceLines: 5
 SortIncludes: true
 SortUsingDeclarations: true
 SpaceAfterCStyleCast: false
@@ -67,7 +66,7 @@ SpaceBeforeSquareBrackets: false
 SpaceInEmptyBlock: false
 SpaceInEmptyParentheses: false
 SpacesBeforeTrailingComments: 1
-SpacesInAngles:  false
+SpacesInAngles: false
 SpacesInCStyleCastParentheses: false
 SpacesInConditionalStatement: false
 SpacesInContainerLiterals: true
