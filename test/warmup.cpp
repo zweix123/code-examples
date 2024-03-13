@@ -30,3 +30,10 @@ TEST(WarmUp, string) {
     ASSERT_STREQ(a.c_str(), b.c_str());
     ASSERT_EQ(a, b);
 }
+TEST(WarmUp, stdout_capture) {
+    testing::internal::CaptureStdout();
+    std::string s = "Hello World";
+    std::cout << s;
+    std::string output = testing::internal::GetCapturedStdout();
+    ASSERT_EQ(s, output);
+}

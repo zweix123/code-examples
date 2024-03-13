@@ -1,6 +1,5 @@
 #include "OpenAddressing.h"
 #include <algorithm>
-#include <cassert>
 #include <cstring>
 #include <random>
 #include <thread>

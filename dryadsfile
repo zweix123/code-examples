@@ -6,6 +6,7 @@ test_cmds = {
     DryadsFlag.PrefixCmd: "cd ./build/test",
     "warm-up": "./warmup",
     "HashTable": "HashTable/OpenAddressing",
+    "ObjPrint": "ObjPrint/ObjPrint",
 }
 
 if sys.platform == "win32":
