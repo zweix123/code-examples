@@ -1,5 +1,3 @@
-#pragma once
-
 #include <cassert>
 #include <iostream>
 #include <sstream>
@@ -16,6 +14,10 @@
 #include <vector>
 
 namespace ObjPrint {
+
+// #define MultiMethod
+#define DuplicateNameGetString
+// #define DuplicateNameToString
 
 using std::string;
 using std::vector;
@@ -63,7 +65,7 @@ inline void printExecute(const char *const s) {
     int endIdx = 0;
     for (; endIdx < CHARSTARTMAXLENGTH && s[endIdx]; ++endIdx)
         ;
-    printString(string(s, endIdx));
+    printString(std::string(s, endIdx));
 }
 template<typename T>
 typename std::enable_if<std::is_same<T, std::string>::value>::type
@@ -71,11 +73,77 @@ printExecute(const T &str) {
     printString(str);
 }
 template<typename T>
+typename std::enable_if<std::is_same<T, std::string>::value>::type
+printExecute(T &str) {
+    // 和上面的函数冗余, 是否有办法解决?
+    printString(str);
+}
+
+template<typename T>
 typename std::enable_if<std::is_arithmetic<T>::value>::type
 printExecute(const T &num) {
     printString(std::to_string(num));
 }
+template<typename T>
+typename std::enable_if<std::is_arithmetic<T>::value>::type
+printExecute(T &num) {
+    // 和上面的函数冗余, 是否有办法解决?
+    printString(std::to_string(num));
+}
 
+#ifdef DuplicateNameGetString
+template<class T, class = void>
+struct HasGetStringMethod {
+    static constexpr bool value = false;
+};
+
+template<class T>
+struct HasGetStringMethod<T, decltype(std::declval<T>().getString(), void())> {
+    static constexpr bool value = true;
+};
+
+template<class T>
+decltype(auto) getStringHandle(T &&x) {
+    if constexpr (HasGetStringMethod<T>::value) {
+        return (std::forward<T>(x).getString());
+    } else {
+        return (getString(std::forward<T>(x)));
+    }
+}
+
+template<class T>
+void printExecute(T &&x) {
+    printString(getStringHandle(std::forward<T>(x)));
+}
+#endif
+
+#ifdef DuplicateNameToString
+template<class T, class = void>
+struct HasToStringMethod {
+    static constexpr bool value = false;
+};
+
+template<class T>
+struct HasToStringMethod<T, decltype(std::declval<T>().toString(), void())> {
+    static constexpr bool value = true;
+};
+
+template<class T>
+decltype(auto) toStringHandle(T &&x) {
+    if constexpr (HasToStringMethod<T>::value) {
+        return (std::forward<T>(x).toString());
+    } else {
+        return (toString(std::forward<T>(x)));
+    }
+}
+
+template<class T>
+void printExecute(T &&x) {
+    printString(toStringHandle(std::forward<T>(x)));
+}
+#endif
+
+#ifdef MultiMethod
 template<typename T>
 auto printExecute(const T &data) -> decltype(data.getString(), void()) {
     printString(data.getString());
@@ -93,6 +161,7 @@ template<typename T>
 auto printExecute(const T &data) -> decltype(data->toString(), void()) {
     printString(data->toString());
 }
+#endif
 
 // declaration
 template<typename T>
@@ -209,19 +278,9 @@ void printDictHelp(const T &data, char leftbound, char rightbound) {
 
 } // namespace ObjPrint
 
-// template<typename T>
-// void println(const std::string &var, const T &data) {
-//     printString(var);
-//     printString("= ");
-//     printRecursion(data);
-//     printEndl();
-// }
-
-// } // namespace ObjPrint
-
-// #define cicada(var)
-//     do {
-//         std::cout << #var << " = ";
-//         ObjPrint::printRecursion(var);
-//         ObjPrint::printEndl();
-//     } while (false);
+#define println(var)                   \
+    do {                               \
+        std::cout << #var << " = ";    \
+        ObjPrint::printRecursion(var); \
+        ObjPrint::printEndl();         \
+    } while (false);
