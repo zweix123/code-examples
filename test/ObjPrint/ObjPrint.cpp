@@ -2,7 +2,15 @@
 
 #include <gtest/gtest.h>
 
+#include <array>
+#include <map>
+#include <queue>
+#include <set>
 #include <string>
+#include <tuple>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
 TEST(ObjPrintTest, genTabStrTest) {
     EXPECT_EQ("", ObjPrint::genTabStr(0));
@@ -271,4 +279,66 @@ TEST(ObjPrintTest, printlnBase) {
         std::string s = testing::internal::GetCapturedStdout();
         EXPECT_EQ(s, "n = 42\n");
     }
+}
+
+TEST(ObjPrintTest, printlnVector) {
+    const std::string a = "vec = [1,2,3,4]\n";
+    testing::internal::CaptureStdout();
+    std::vector<int> vec{1, 2, 3, 4};
+    println(vec);
+    std::string b = testing::internal::GetCapturedStdout();
+    EXPECT_EQ(a, b);
+}
+
+TEST(ObjPrintTest, printlnArray) {
+    const std::string a = "arr = [1,2,3,4][4]\n";
+    testing::internal::CaptureStdout();
+    std::array<int, 4> arr{1, 2, 3, 4};
+    println(arr);
+    std::string b = testing::internal::GetCapturedStdout();
+    EXPECT_EQ(a, b);
+}
+TEST(ObjPrintTest, printlnSet) {
+    const std::string a = "ts = (1,2,3,4)\n";
+    testing::internal::CaptureStdout();
+    std::set<int> ts{1, 2, 3, 4};
+    println(ts);
+    std::string b = testing::internal::GetCapturedStdout();
+    EXPECT_EQ(a, b);
+}
+
+TEST(ObjPrintTest, printlnUnorderedSet) {
+    const std::string a = "ts = (4,3,2,1)\n";
+    testing::internal::CaptureStdout();
+    std::unordered_set<int> ts{1, 2, 3, 4};
+    println(ts);
+    std::string b = testing::internal::GetCapturedStdout();
+    EXPECT_EQ(a, b);
+}
+
+TEST(ObjPrintTest, printlnMap) {
+    const std::string a = "ts = {\n  1: 1\n  2: 2\n  3: 3\n  4: 4\n}\n";
+    testing::internal::CaptureStdout();
+    std::map<int, int> ts{{1, 1}, {2, 2}, {3, 3}, {4, 4}};
+    println(ts);
+    std::string b = testing::internal::GetCapturedStdout();
+    EXPECT_EQ(a, b);
+}
+
+TEST(ObjPrintTest, printlnUnorderedMap) {
+    const std::string a = "ts = {\n  4: 4\n  3: 3\n  2: 2\n  1: 1\n}\n";
+    testing::internal::CaptureStdout();
+    std::unordered_map<int, int> ts{{1, 1}, {2, 2}, {3, 3}, {4, 4}};
+    println(ts);
+    std::string b = testing::internal::GetCapturedStdout();
+    EXPECT_EQ(a, b);
+}
+
+TEST(ObjPrintTest, printlnTuple) {
+    const std::string a = "t = (42, 3.140000, Hello World)\n";
+    testing::internal::CaptureStdout();
+    std::tuple<int, double, std::string> t{42, 3.14, "Hello World"};
+    println(t);
+    std::string b = testing::internal::GetCapturedStdout();
+    EXPECT_EQ(a, b);
 }

@@ -4,6 +4,7 @@
 #include <string>
 #include <type_traits>
 
+#include <array>
 #include <map>
 #include <queue>
 #include <set>
@@ -15,8 +16,8 @@
 
 namespace ObjPrint {
 
-// #define MultiMethod
-#define DuplicateNameGetString
+#define MultiMethod
+// #define DuplicateNameGetString
 // #define DuplicateNameToString
 
 using std::string;
@@ -78,6 +79,12 @@ printExecute(T &str) {
     // 和上面的函数冗余, 是否有办法解决?
     printString(str);
 }
+template<typename T>
+typename std::enable_if<std::is_same<T, std::string>::value>::type
+printExecute(T &&str) {
+    // 同上
+    printString(str);
+}
 
 template<typename T>
 typename std::enable_if<std::is_arithmetic<T>::value>::type
@@ -87,7 +94,13 @@ printExecute(const T &num) {
 template<typename T>
 typename std::enable_if<std::is_arithmetic<T>::value>::type
 printExecute(T &num) {
-    // 和上面的函数冗余, 是否有办法解决?
+    // 同上
+    printString(std::to_string(num));
+}
+template<typename T>
+typename std::enable_if<std::is_arithmetic<T>::value>::type
+printExecute(T &&num) {
+    // 同上
     printString(std::to_string(num));
 }
 
@@ -171,6 +184,13 @@ void printDictHelp(const T &data, char leftBound = '{', char rightBound = '}');
 template<typename T>
 void printRecursion(const T &data);
 
+template<typename T, std::size_t N>
+void printRecursion(const std::array<T, N> &data) {
+    printSeqHelp(data, '[', ']');
+    printString("[");
+    printExecute(N); // 需要printExecute区分右值
+    printString("]");
+}
 template<typename T>
 void printRecursion(const std::vector<T> &data) {
     printSeqHelp(data, '[', ']');
