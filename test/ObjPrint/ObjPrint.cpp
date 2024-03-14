@@ -62,99 +62,71 @@ TEST(ObjPrintTest, baseFunc) {
 }
 TEST(ObjPrintTest, executeFunc) {
     {
-        // char *
-        { // 正常
-            testing::internal::CaptureStdout();
-            std::string a = "Hello World";
-            ObjPrint::printExecute(a.c_str());
-            std::string b = testing::internal::GetCapturedStdout();
-            EXPECT_EQ(a, b);
+        // char*
+        { // 字面量
+            const char *s1 = "Hello World";
+            const char *const s2 = "Hello World";
+            EXPECT_EQ(ObjPrint::to_string(s1), s1);
+            EXPECT_EQ(ObjPrint::to_string(s2), s2);
         }
-        { // 超长/常
-            testing::internal::CaptureStdout();
+        { // std::string().c_str()
+            std::string s1 = "Hello World";
+            const std::string s2 = "Hello World";
+            EXPECT_EQ(ObjPrint::to_string(s1.c_str()), s1);
+            EXPECT_EQ(ObjPrint::to_string(s2.c_str()), s2);
+        }
+        {
             std::string a = std::string(ObjPrint::CHARSTARTMAXLENGTH * 2, 'z');
             std::string b = std::string(ObjPrint::CHARSTARTMAXLENGTH, 'z');
-
-            ObjPrint::printExecute(a.c_str());
-            std::string c = testing::internal::GetCapturedStdout();
+            std::string c = ObjPrint::to_string(a.c_str());
             EXPECT_EQ(b, c);
         }
     }
+
     { // std::string
-        testing::internal::CaptureStdout();
-        std::string a = "Hello World";
-        ObjPrint::printExecute(a);
-        std::string b = testing::internal::GetCapturedStdout();
-        EXPECT_EQ(a, b);
+        std::string s = "Hello World";
+        EXPECT_EQ(s, ObjPrint::to_string(s));
     }
     { // number
         {
-            testing::internal::CaptureStdout();
             int n = 42;
-            ObjPrint::printExecute(n);
-            std::string o = testing::internal::GetCapturedStdout();
-            EXPECT_EQ(o, "42");
+            EXPECT_EQ(ObjPrint::to_string(n), "42");
         }
         {
-            testing::internal::CaptureStdout();
             int n = -42;
-            ObjPrint::printExecute(n);
-            std::string o = testing::internal::GetCapturedStdout();
-            EXPECT_EQ(o, "-42");
+            EXPECT_EQ(ObjPrint::to_string(n), "-42");
         }
         {
-            testing::internal::CaptureStdout();
             long n = 42;
-            ObjPrint::printExecute(n);
-            std::string o = testing::internal::GetCapturedStdout();
-            EXPECT_EQ(o, "42");
+            EXPECT_EQ(ObjPrint::to_string(n), "42");
         }
         {
-            testing::internal::CaptureStdout();
             long long n = 42;
-            ObjPrint::printExecute(n);
-            std::string o = testing::internal::GetCapturedStdout();
-            EXPECT_EQ(o, "42");
+            EXPECT_EQ(ObjPrint::to_string(n), "42");
         }
         {
-            testing::internal::CaptureStdout();
             unsigned n = 42;
-            ObjPrint::printExecute(n);
-            std::string o = testing::internal::GetCapturedStdout();
-            EXPECT_EQ(o, "42");
+            EXPECT_EQ(ObjPrint::to_string(n), "42");
         }
         {
-            testing::internal::CaptureStdout();
             long long n = 42;
-            ObjPrint::printExecute(n);
-            std::string o = testing::internal::GetCapturedStdout();
-            EXPECT_EQ(o, "42");
+            EXPECT_EQ(ObjPrint::to_string(n), "42");
         }
         {
-            testing::internal::CaptureStdout();
             double n = 3.14;
-            ObjPrint::printExecute(n);
-            std::string o = testing::internal::GetCapturedStdout();
-            EXPECT_EQ(o, "3.140000");
+            EXPECT_EQ(ObjPrint::to_string(n), "3.140000");
         }
         {
-            testing::internal::CaptureStdout();
             long double n = 3.14;
-            ObjPrint::printExecute(n);
-            std::string o = testing::internal::GetCapturedStdout();
-            EXPECT_EQ(o, "3.140000");
+            EXPECT_EQ(ObjPrint::to_string(n), "3.140000");
         }
         {
-            testing::internal::CaptureStdout();
             std::size_t n = 42;
-            ObjPrint::printExecute(n);
-            std::string o = testing::internal::GetCapturedStdout();
-            EXPECT_EQ(o, "42");
+            EXPECT_EQ(ObjPrint::to_string(n), "42");
         }
     }
 }
 
-#if defined(MultiMethod) || defined(DuplicateNameGetString)
 class W1 {
     int a;
     double b;
@@ -168,8 +140,7 @@ class W1 {
                + ")";
     }
 };
-#endif
-#if defined(MultiMethod) || defined(DuplicateNameToString)
+
 class W2 {
     int a;
     double b;
@@ -183,9 +154,7 @@ class W2 {
                + ")";
     }
 };
-#endif
 
-#ifdef DuplicateNameGetString
 struct W3 {
     int a;
     double b;
@@ -196,9 +165,7 @@ std::string getString(const W3 &w) {
     return "W3(" + std::to_string(w.a) + ", " + std::to_string(w.b) + ", " + w.c
            + ")";
 }
-#endif
 
-#ifdef DuplicateNameToString
 struct W4 {
     int a;
     double b;
@@ -209,66 +176,32 @@ std::string toString(const W4 &w) {
     return "W4(" + std::to_string(w.a) + ", " + std::to_string(w.b) + ", " + w.c
            + ")";
 }
-#endif
 
 TEST(ObjPrintTest, executeFuncCustomClass) {
-#if defined(MultiMethod) || defined(DuplicateNameGetString)
     { // mothed getString in object
-        testing::internal::CaptureStdout();
         auto t = W1(1, 2.0, "3");
-        ObjPrint::printExecute(t);
-        const auto o = testing::internal::GetCapturedStdout();
-        EXPECT_EQ(o, "W1(1, 2.000000, 3)");
+        EXPECT_EQ(ObjPrint::to_string(t), "W1(1, 2.000000, 3)");
     }
-#endif
-#if defined(MultiMethod)
     { // mothed getString in pointer
-        testing::internal::CaptureStdout();
         const auto p = std::make_shared<W1>(1, 2.0, "3");
-        ObjPrint::printExecute(p);
-        const auto o = testing::internal::GetCapturedStdout();
-        EXPECT_EQ(o, "W1(1, 2.000000, 3)");
+        EXPECT_EQ(ObjPrint::to_string(p), "W1(1, 2.000000, 3)");
     }
-#endif
-
-#if defined(MultiMethod) || defined(DuplicateNameToString)
-
     { // mothed toString in object
-        testing::internal::CaptureStdout();
         auto t = W2(1, 2.0, "3");
-        ObjPrint::printExecute(t);
-        const auto o = testing::internal::GetCapturedStdout();
-        EXPECT_EQ(o, "W2(1, 2.000000, 3)");
+        EXPECT_EQ(ObjPrint::to_string(t), "W2(1, 2.000000, 3)");
     }
-#endif
-#if defined(MultiMethod)
     { // mothed toString in pointer
-        testing::internal::CaptureStdout();
         const auto p = std::make_shared<W2>(1, 2.0, "3");
-        ObjPrint::printExecute(p);
-        const auto o = testing::internal::GetCapturedStdout();
-        EXPECT_EQ(o, "W2(1, 2.000000, 3)");
+        EXPECT_EQ(ObjPrint::to_string(p), "W2(1, 2.000000, 3)");
     }
-#endif
-
-#ifdef DuplicateNameGetString
     { // function getString
-        testing::internal::CaptureStdout();
         const auto t = W3{1, 2.0, "3"};
-        ObjPrint::printExecute(t);
-        const auto o = testing::internal::GetCapturedStdout();
-        EXPECT_EQ(o, "W3(1, 2.000000, 3)");
+        EXPECT_EQ(ObjPrint::to_string(t), "W3(1, 2.000000, 3)");
     }
-#endif
-#ifdef DuplicateNameToString
     { // function toString
-        testing::internal::CaptureStdout();
         const auto t = W4{1, 2.0, "3"};
-        ObjPrint::printExecute(t);
-        const auto o = testing::internal::GetCapturedStdout();
-        EXPECT_EQ(o, "W4(1, 2.000000, 3)");
+        EXPECT_EQ(ObjPrint::to_string(t), "W4(1, 2.000000, 3)");
     }
-#endif
 }
 
 TEST(ObjPrintTest, printlnBase) {
@@ -317,7 +250,7 @@ TEST(ObjPrintTest, printlnUnorderedSet) {
 }
 
 TEST(ObjPrintTest, printlnMap) {
-    const std::string a = "ts = {\n  1: 1\n  2: 2\n  3: 3\n  4: 4\n}\n";
+    const std::string a = "ts = {\n  1:1\n  2:2\n  3:3\n  4:4\n}\n";
     testing::internal::CaptureStdout();
     std::map<int, int> ts{{1, 1}, {2, 2}, {3, 3}, {4, 4}};
     println(ts);
@@ -326,7 +259,7 @@ TEST(ObjPrintTest, printlnMap) {
 }
 
 TEST(ObjPrintTest, printlnUnorderedMap) {
-    const std::string a = "ts = {\n  4: 4\n  3: 3\n  2: 2\n  1: 1\n}\n";
+    const std::string a = "ts = {\n  4:4\n  3:3\n  2:2\n  1:1\n}\n";
     testing::internal::CaptureStdout();
     std::unordered_map<int, int> ts{{1, 1}, {2, 2}, {3, 3}, {4, 4}};
     println(ts);
@@ -335,7 +268,7 @@ TEST(ObjPrintTest, printlnUnorderedMap) {
 }
 
 TEST(ObjPrintTest, printlnTuple) {
-    const std::string a = "t = (42, 3.140000, Hello World)\n";
+    const std::string a = "t = (42,3.140000,Hello World)\n";
     testing::internal::CaptureStdout();
     std::tuple<int, double, std::string> t{42, 3.14, "Hello World"};
     println(t);

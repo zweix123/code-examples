@@ -16,27 +16,23 @@
 
 namespace ObjPrint {
 
-#define MultiMethod
+// #define MultiMethod
 // #define DuplicateNameGetString
 // #define DuplicateNameToString
 
-using std::string;
-using std::vector;
-
-constexpr int CHARSTARTMAXLENGTH = 120 + 7;
-
+constexpr const int CHARSTARTMAXLENGTH = 120 + 7;
 static int depth = -1;
 
 // helper
-inline string genTabStr(int tabNum) {
-    return string(tabNum << 1, ' ');
+inline std::string genTabStr(int tabNum) {
+    return std::string(tabNum << 1, ' ');
 }
 
 inline std::string shift(const std::string &s, const std::string &pre) {
     std::stringstream ss(s);
-    vector<string> lines;
+    std::vector<std::string> lines;
     {
-        string line;
+        std::string line;
         while (std::getline(ss, line)) { lines.push_back(std::move(line)); }
     }
     std::string result;
@@ -54,6 +50,9 @@ inline std::string shift(const std::string &s, const std::string &pre) {
 }
 
 // base
+inline void printChar(const char &c) {
+    std::cout << c;
+}
 inline void printString(const std::string &s) {
     std::cout << shift(s, genTabStr(depth + 1));
 }
@@ -61,120 +60,69 @@ inline void printEndl() {
     std::cout << std::endl;
 }
 
-// execute
-inline void printExecute(const char *const s) {
-    int endIdx = 0;
-    for (; endIdx < CHARSTARTMAXLENGTH && s[endIdx]; ++endIdx)
-        ;
-    printString(std::string(s, endIdx));
-}
-template<typename T>
-typename std::enable_if<std::is_same<T, std::string>::value>::type
-printExecute(const T &str) {
-    printString(str);
-}
-template<typename T>
-typename std::enable_if<std::is_same<T, std::string>::value>::type
-printExecute(T &str) {
-    // 和上面的函数冗余, 是否有办法解决?
-    printString(str);
-}
-template<typename T>
-typename std::enable_if<std::is_same<T, std::string>::value>::type
-printExecute(T &&str) {
-    // 同上
-    printString(str);
-}
-
-template<typename T>
-typename std::enable_if<std::is_arithmetic<T>::value>::type
-printExecute(const T &num) {
-    printString(std::to_string(num));
-}
-template<typename T>
-typename std::enable_if<std::is_arithmetic<T>::value>::type
-printExecute(T &num) {
-    // 同上
-    printString(std::to_string(num));
-}
-template<typename T>
-typename std::enable_if<std::is_arithmetic<T>::value>::type
-printExecute(T &&num) {
-    // 同上
-    printString(std::to_string(num));
-}
-
-#ifdef DuplicateNameGetString
+// to string
 template<class T, class = void>
-struct HasGetStringMethod {
-    static constexpr bool value = false;
-};
+struct HasGetStringMethod : std::false_type {};
+template<class T>
+struct HasGetStringMethod<T, decltype(std::declval<T>().getString(), void())>
+    : std::true_type {};
+
+template<class T, class = void>
+struct HasToStringMethod : std::false_type {};
+template<class T>
+struct HasToStringMethod<T, decltype(std::declval<T>().toString(), void())>
+    : std::true_type {};
+
+template<class T, class = void>
+struct PtrCanGetStringMethod : std::false_type {};
+template<class T>
+struct PtrCanGetStringMethod<
+    T,
+    decltype(std::declval<T>()->getString(), void())> : std::true_type {};
+
+template<class T, class = void>
+struct PtrCanToStringMethod : std::false_type {};
+template<class T>
+struct PtrCanToStringMethod<T, decltype(std::declval<T>()->toString(), void())>
+    : std::true_type {};
+
+template<class T, class = void>
+struct HasGetStringFunc : std::false_type {};
+template<class T>
+struct HasGetStringFunc<T, decltype(getString(std::declval<T>()), void())>
+    : std::true_type {};
+
+template<class T, class = void>
+struct HasToStringFunc : std::false_type {};
+template<class T>
+struct HasToStringFunc<T, decltype(toString(std::declval<T>()), void())>
+    : std::true_type {};
 
 template<class T>
-struct HasGetStringMethod<T, decltype(std::declval<T>().getString(), void())> {
-    static constexpr bool value = true;
-};
-
-template<class T>
-decltype(auto) getStringHandle(T &&x) {
+decltype(auto) to_string(T &&x) {
     if constexpr (HasGetStringMethod<T>::value) {
         return (std::forward<T>(x).getString());
-    } else {
-        return (getString(std::forward<T>(x)));
-    }
-}
-
-template<class T>
-void printExecute(T &&x) {
-    printString(getStringHandle(std::forward<T>(x)));
-}
-#endif
-
-#ifdef DuplicateNameToString
-template<class T, class = void>
-struct HasToStringMethod {
-    static constexpr bool value = false;
-};
-
-template<class T>
-struct HasToStringMethod<T, decltype(std::declval<T>().toString(), void())> {
-    static constexpr bool value = true;
-};
-
-template<class T>
-decltype(auto) toStringHandle(T &&x) {
-    if constexpr (HasToStringMethod<T>::value) {
+    } else if constexpr (HasToStringMethod<T>::value) {
         return (std::forward<T>(x).toString());
-    } else {
+    } else if constexpr (PtrCanGetStringMethod<T>::value) {
+        return (std::forward<T>(x)->getString());
+    } else if constexpr (PtrCanToStringMethod<T>::value) {
+        return (std::forward<T>(x)->toString());
+    } else if constexpr (HasGetStringFunc<T>::value) {
+        return (getString(std::forward<T>(x)));
+    } else if constexpr (HasToStringFunc<T>::value) {
         return (toString(std::forward<T>(x)));
+    } else if constexpr (std::is_same<std::decay_t<T>, const char *>::value) {
+        int endIdx = 0;
+        for (; endIdx < CHARSTARTMAXLENGTH && x[endIdx]; ++endIdx)
+            ;
+        return std::string(x, endIdx);
+    } else if constexpr (std::is_same<std::decay_t<T>, std::string>::value) {
+        return std::forward<T>(x);
+    } else {
+        return (std::to_string(std::forward<T>(x)));
     }
 }
-
-template<class T>
-void printExecute(T &&x) {
-    printString(toStringHandle(std::forward<T>(x)));
-}
-#endif
-
-#ifdef MultiMethod
-template<typename T>
-auto printExecute(const T &data) -> decltype(data.getString(), void()) {
-    printString(data.getString());
-}
-template<typename T>
-auto printExecute(const T &data) -> decltype(data->getString(), void()) {
-    printString(data->getString());
-}
-
-template<typename T>
-auto printExecute(const T &data) -> decltype(data.toString(), void()) {
-    printString(data.toString());
-}
-template<typename T>
-auto printExecute(const T &data) -> decltype(data->toString(), void()) {
-    printString(data->toString());
-}
-#endif
 
 // declaration
 template<typename T>
@@ -187,9 +135,9 @@ void printRecursion(const T &data);
 template<typename T, std::size_t N>
 void printRecursion(const std::array<T, N> &data) {
     printSeqHelp(data, '[', ']');
-    printString("[");
-    printExecute(N); // 需要printExecute区分右值
-    printString("]");
+    printChar('[');
+    printRecursion(N);
+    printChar(']');
 }
 template<typename T>
 void printRecursion(const std::vector<T> &data) {
@@ -214,11 +162,11 @@ void printRecursion(const std::unordered_map<K, V> &data) {
 }
 template<typename K, typename V>
 void printRecursion(const std::pair<K, V> &data) {
-    printString("<");
+    printChar('<');
     printRecursion(data.first);
-    printString(":");
+    printChar(':');
     printRecursion(data.second);
-    printString(">");
+    printChar('>');
 }
 template<typename T>
 void printRecursion(std::priority_queue<T> priority_que) {
@@ -236,7 +184,7 @@ template<typename Tuple, std::size_t N>
 struct TuplePrinter {
     static void print(const Tuple &t) {
         TuplePrinter<Tuple, N - 1>::print(t);
-        printString(", ");
+        printChar(',');
         printRecursion(std::get<N - 1>(t));
     }
 };
@@ -246,52 +194,54 @@ struct TuplePrinter<Tuple, 1> {
 };
 template<typename... Args>
 void printRecursion(const std::tuple<Args...> &t) {
-    std::cout << "(";
+    printChar('(');
     TuplePrinter<decltype(t), sizeof...(Args)>::print(t);
-    std::cout << ")";
+    printChar(')');
 }
 
 template<typename T>
 void printRecursion(const T &data) {
-    printExecute(data);
+    printString(to_string(data));
 }
 
 template<typename T>
 void printSeqHelp(const T &data, char leftbound, char rightbound) {
-    std::cout << leftbound;
+    printChar(leftbound);
     if (data.empty()) {
         printString(" Empty ");
     } else {
         bool first = true;
         for (auto &ele : data) {
-            if (!first) printString(",");
+            if (!first) printChar(',');
             else
                 first = false;
             printRecursion(ele);
         }
     }
-    std::cout << rightbound;
-}
 
+    printChar(rightbound);
+}
 template<typename T>
 void printDictHelp(const T &data, char leftbound, char rightbound) {
     ++depth;
     if (data.empty()) {
-        std::cout << leftbound;
+        printChar(leftbound);
         printString(" Empty ");
-        std::cout << rightbound;
+        printChar(rightbound);
     } else {
-        std::cout << leftbound << "\n";
+        printChar(leftbound);
+        printEndl();
         for (auto &iter : data) {
             printString(genTabStr(depth + 1));
             printRecursion(iter.first);
-            printString(": ");
+            printChar(':');
             ++depth;
             printRecursion(iter.second);
             --depth;
             printEndl();
         }
-        std::cout << genTabStr(depth) << rightbound;
+        printString(genTabStr(depth));
+        printChar(rightbound);
     }
     --depth;
 }
