@@ -76,8 +76,8 @@ TEST(ObjPrintTest, executeFunc) {
             EXPECT_EQ(ObjPrint::to_string(s2.c_str()), s2);
         }
         {
-            std::string a = std::string(ObjPrint::CHARSTARTMAXLENGTH * 2, 'z');
-            std::string b = std::string(ObjPrint::CHARSTARTMAXLENGTH, 'z');
+            std::string a = std::string(120 * 2, 'z');
+            std::string b = std::string(120, 'z');
             std::string c = ObjPrint::to_string(a.c_str());
             EXPECT_EQ(b, c);
         }
