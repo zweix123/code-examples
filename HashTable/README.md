@@ -1,3 +1,6 @@
++ Ref:
+  + [zclll · [翻译]Clickhouse中的哈希表和C++的零开销抽象](https://zclll.com/index.php/doris/hashtable_in_clickhouse.html)：还是得叔叔。
+
 在C++标准库中，`std::unordered_set`和`std::unordered_map`底层数据结构使用哈希表，`std::set`和`std::map`底层数据结构使用红黑树，这里仅讨论前者。
 
 为方便理解哈希算法，从一个简单问题出发。考虑维护一个值域为`0~N`（`N`不太大）的数集，要求若干操作，有两种，一种是查找，查找某个数字是否出现过，另一种是出现，表示该数字出现。一种方法是创建一个布尔数组`s[N + 1]`并初始化为`false`，如果出现一个数字`x`，令`s[x] = true`，如果查询一个数字`x`，检测`s[x]`是否为`true`即可。这就是**桶哈希**。
