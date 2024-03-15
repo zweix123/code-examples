@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <string>
 #include <type_traits>
 
@@ -40,6 +41,13 @@ template<class T>
 struct HasToStringFunc<T, decltype(toString(std::declval<T>()), void())>
     : std::true_type {};
 
+template<class T, class = void>
+struct CanStdToStringFunc : std::false_type {};
+template<class T>
+struct CanStdToStringFunc<
+    T,
+    decltype(std::to_string(std::declval<T>()), void())> : std::true_type {};
+
 template<class T>
 decltype(auto) to_string(T &&x) {
     if constexpr (HasGetStringMethod<T>::value) {
@@ -54,6 +62,8 @@ decltype(auto) to_string(T &&x) {
         return (getString(std::forward<T>(x)));
     } else if constexpr (HasToStringFunc<T>::value) {
         return (toString(std::forward<T>(x)));
+    } else if constexpr (CanStdToStringFunc<T>::value) {
+        return (std::to_string(std::forward<T>(x)));
     } else if constexpr (std::is_same<std::decay_t<T>, const char *>::value) {
         constexpr static const int CHARSTARTMAXLENGTH = 120;
         int endIdx = 0;
@@ -63,6 +73,6 @@ decltype(auto) to_string(T &&x) {
     } else if constexpr (std::is_same<std::decay_t<T>, std::string>::value) {
         return std::forward<T>(x);
     } else {
-        return (std::to_string(std::forward<T>(x)));
+        assert(false);
     }
 }

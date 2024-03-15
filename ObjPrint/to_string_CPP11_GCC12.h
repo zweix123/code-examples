@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <string>
 #include <type_traits>
 
@@ -152,8 +153,7 @@ template<typename T>
 struct to_string_dispatcher<T, 9, void> {
     template<typename U>
     static void invoke(U &&arg) {
-        //
-        ;
+        assert(false);
     }
 };
 
