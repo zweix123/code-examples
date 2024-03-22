@@ -148,13 +148,13 @@ struct to_string_dispatcher<
     }
 };
 
-template<typename T>
-struct to_string_dispatcher<T, 9, void> {
-    template<typename U>
-    static void invoke(U &&arg) {
-        static_assert(false, "unsupported type");
-    }
-};
+// template<typename T>
+// struct to_string_dispatcher<T, 9, void> {
+//     template<typename U>
+//     static void invoke(U &&arg) {
+//         static_assert(false, "unsupported type");
+//     }
+// };
 
 template<typename T>
 std::string to_string(T &&x) {

@@ -70,8 +70,42 @@ template<typename T>
 void printSeqHelp(const T &data, char leftBound, char rightBound);
 template<typename T>
 void printDictHelp(const T &data, char leftBound = '{', char rightBound = '}');
+
+template<class T, class = void>
+struct CanOutput : std::false_type {};
+template<class T>
+struct CanOutput<
+    T,
+    decltype(std::declval<std::ostream &>() << std::declval<T>(), void())>
+    : std::true_type {};
+
+template<class T, class = void>
+struct NeedToString : std::false_type {};
+template<class T>
+struct NeedToString<T, decltype(to_string(std::declval<T>()), void())>
+    : std::true_type {};
+
 template<typename T>
-void printRecursion(const T &data);
+typename std::enable_if<CanOutput<T>::value && NeedToString<T>::value, void>::
+    type
+    printRecursion(const T &data) {
+    std::cout << data;
+    // printString(to_string(data));
+}
+
+template<typename T>
+typename std::enable_if<CanOutput<T>::value && !NeedToString<T>::value, void>::
+    type
+    printRecursion(const T &data) {
+    std::cout << data;
+}
+
+template<typename T>
+typename std::enable_if<!CanOutput<T>::value && NeedToString<T>::value, void>::
+    type
+    printRecursion(const T &data) {
+    printString(to_string(data));
+}
 
 template<typename T, std::size_t N>
 void printRecursion(const std::array<T, N> &data) {
@@ -141,11 +175,6 @@ void printRecursion(const std::tuple<Args...> &t) {
 }
 
 template<typename T>
-void printRecursion(const T &data) {
-    printString(to_string(data));
-}
-
-template<typename T>
 void printSeqHelp(const T &data, char leftbound, char rightbound) {
     printChar(leftbound);
     if (data.empty()) {
@@ -162,6 +191,7 @@ void printSeqHelp(const T &data, char leftbound, char rightbound) {
 
     printChar(rightbound);
 }
+
 template<typename T>
 void printDictHelp(const T &data, char leftbound, char rightbound) {
     ++depth;

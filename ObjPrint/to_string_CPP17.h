@@ -72,7 +72,8 @@ decltype(auto) to_string(T &&x) {
         return std::string(x, endIdx);
     } else if constexpr (std::is_same<std::decay_t<T>, std::string>::value) {
         return std::forward<T>(x);
-    } else {
-        assert(false);
     }
+    // else {
+    //     assert(false);
+    // }
 }

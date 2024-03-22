@@ -144,15 +144,16 @@ to_string(const T &x) {
     return x;
 }
 
-template<typename T>
-typename std::enable_if<
-    !has_toString_method<T>::value && !has_getString_method<T>::value
-        && !can_toString_method<T>::value && !can_getString_method<T>::value
-        && !has_toString_function<T>::value && !has_getString_function<T>::value
-        && !has_std_to_string_function<T>::value
-        && !std::is_same<typename std::decay<T>::type, const char *>::value
-        && !std::is_same<typename std::decay<T>::type, std::string>::value,
-    std::string>::type
-to_string(const T &x) {
-    assert(false);
-}
+// template<typename T>
+// typename std::enable_if<
+//     !has_toString_method<T>::value && !has_getString_method<T>::value
+//         && !can_toString_method<T>::value && !can_getString_method<T>::value
+//         && !has_toString_function<T>::value &&
+//         !has_getString_function<T>::value
+//         && !has_std_to_string_function<T>::value
+//         && !std::is_same<typename std::decay<T>::type, const char *>::value
+//         && !std::is_same<typename std::decay<T>::type, std::string>::value,
+//     std::string>::type
+// to_string(const T &x) {
+//     assert(false);
+// }

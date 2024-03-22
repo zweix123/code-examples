@@ -3,10 +3,15 @@ import sys
 from dryads import Dryads, DryadsFlag  # type: ignore
 
 test_cmds = {
-    DryadsFlag.PrefixCmd: "cd ./build/test",
+    DryadsFlag.PrefixCmd: "cd ./build/test/",
+    "common": "./common",
     "warm-up": "./warmup",
-    "HashTable": "HashTable/OpenAddressing",
-    "ObjPrint": "ObjPrint/ObjPrint",
+    "HashTable": "./HashTable/OpenAddressing",
+    "ObjPrint": "./ObjPrint/ObjPrint",
+    "CacheImpl": {
+        DryadsFlag.PrefixCmd: "cd ./CacheImpl/",
+        "LRU": "./LRU",
+    },
 }
 
 if sys.platform == "win32":
