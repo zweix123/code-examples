@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cassert>
 #include <string>
 #include <type_traits>
 
@@ -149,15 +148,21 @@ struct to_string_dispatcher<
     }
 };
 
-// template<typename T>
-// struct to_string_dispatcher<T, 9, void> {
-//     template<typename U>
-//     static void invoke(U &&arg) {
-//         assert(false);
-//     }
-// };
+struct NoMatchToString {};
 
 template<typename T>
-std::string to_string(T &&x) {
-    return to_string_dispatcher<T>::invoke(std::forward<T>(x));
+struct to_string_dispatcher<T, 9, void> {
+    template<typename U>
+    static NoMatchToString invoke(U &&arg) {
+        return NoMatchToString{};
+    }
+};
+
+template<class T>
+auto to_string(T &&x) -> std::enable_if<
+    !std::is_same<
+        decltype(to_string_dispatcher<T>::invoke(std::declval<T>())),
+        NoMatchToString>::value,
+    decltype(to_string_dispatcher<T>::invoke(std::declval<T>()))>::type {
+    return (to_string_dispatcher<T>::invoke(std::forward<T>(x)));
 }

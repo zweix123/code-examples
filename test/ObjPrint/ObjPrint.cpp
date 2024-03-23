@@ -275,3 +275,84 @@ TEST(ObjPrintTest, printlnTuple) {
     std::string b = testing::internal::GetCapturedStdout();
     EXPECT_EQ(a, b);
 }
+
+struct W5 {
+    int a;
+    double b;
+    std::string c;
+    void ObjPrint() const {
+        std::cout << "a = " << a << ", b = " << b << ", c = " << c;
+    }
+};
+
+struct W6 {
+    int a;
+    double b;
+    std::string c;
+    friend std::ostream &operator<<(std::ostream &out, const W6 &w) {
+        return out << "a = " << w.a << ", b = " << w.b << ", c = " << w.c;
+    }
+};
+
+TEST(ObjPrintTest, printClass) {
+    { // method ObjPrint
+        testing::internal::CaptureStdout();
+        const auto t = W5{1, 2.0, "3"};
+        println(t);
+        std::string o = testing::internal::GetCapturedStdout();
+        EXPECT_EQ(o, "t = a = 1, b = 2, c = 3\n");
+    }
+    { // std::cout
+        testing::internal::CaptureStdout();
+        const auto t = W6{1, 2.0, "3"};
+        println(t);
+        std::string o = testing::internal::GetCapturedStdout();
+        EXPECT_EQ(o, "t = a = 1, b = 2, c = 3\n");
+        // ToString<W6>::value
+    }
+}
+
+TEST(ObjPrintTest, printlnVariant) {
+    using VT = std::variant<std::monostate, int, double, std::string>;
+
+    {
+        testing::internal::CaptureStdout();
+        VT z = std::monostate{};
+        println(z);
+        std::string o = testing::internal::GetCapturedStdout();
+        EXPECT_EQ(o, "z = std::monostate\n");
+    }
+    {
+        testing::internal::CaptureStdout();
+        VT a = 1;
+        println(a);
+        std::string o = testing::internal::GetCapturedStdout();
+        EXPECT_EQ(o, "a = 1\n");
+    }
+    {
+        testing::internal::CaptureStdout();
+        VT b = 3.14;
+        println(b);
+        std::string o = testing::internal::GetCapturedStdout();
+        EXPECT_EQ(o, "b = 3.140000\n");
+    }
+    {
+        testing::internal::CaptureStdout();
+        VT c = "Hello World";
+        println(c);
+        std::string o = testing::internal::GetCapturedStdout();
+        EXPECT_EQ(o, "c = Hello World\n");
+    }
+}
+
+TEST(ObjPrintTest, MultiPrint) {
+    const std::vector<int> t{1, 2, 3};
+    PRINT(t);
+    print(t);
+    PRINTLN(t);
+    println(t);
+    // PRINTS(t[0], t[1], t[2]);
+    // prints(t[0], t[1], t[2]);
+    // PRINTSLN(t[0], t[1], t[2]);
+    // printsln(t[0], t[1], t[2]);
+}

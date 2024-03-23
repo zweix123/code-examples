@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cassert>
 #include <string>
 #include <type_traits>
 
@@ -48,8 +47,10 @@ struct CanStdToStringFunc<
     T,
     decltype(std::to_string(std::declval<T>()), void())> : std::true_type {};
 
+struct NoMatchToString {};
+
 template<class T>
-decltype(auto) to_string(T &&x) {
+decltype(auto) to_string_impl(T &&x) {
     if constexpr (HasGetStringMethod<T>::value) {
         return (std::forward<T>(x).getString());
     } else if constexpr (HasToStringMethod<T>::value) {
@@ -71,9 +72,17 @@ decltype(auto) to_string(T &&x) {
             ;
         return std::string(x, endIdx);
     } else if constexpr (std::is_same<std::decay_t<T>, std::string>::value) {
-        return std::forward<T>(x);
+        return (std::forward<T>(x));
+    } else {
+        return NoMatchToString{};
     }
-    // else {
-    //     assert(false);
-    // }
+}
+
+template<class T>
+auto to_string(T &&x) -> std::enable_if<
+    !std::is_same<
+        decltype(to_string_impl(std::declval<T>())),
+        NoMatchToString>::value,
+    decltype(to_string_impl(std::declval<T>()))>::type {
+    return (to_string_impl(std::forward<T>(x)));
 }

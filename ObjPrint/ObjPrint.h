@@ -1,18 +1,19 @@
 #pragma once
 
+#include <array>
 #include <cassert>
 #include <iostream>
-#include <sstream>
-#include <string>
-
-#include <array>
 #include <map>
+#include <optional>
 #include <queue>
 #include <set>
+#include <sstream>
+#include <string>
 #include <tuple>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
+#include <variant>
 #include <vector>
 
 namespace ObjPrint {
@@ -33,7 +34,9 @@ inline std::string shift(const std::string &s, const std::string &pre) {
     std::vector<std::string> lines;
     {
         std::string line;
-        while (std::getline(ss, line)) { lines.push_back(std::move(line)); }
+        while (std::getline(ss, line)) {
+            lines.push_back(std::move(line));
+        }
     }
     std::string result;
     {
@@ -60,51 +63,86 @@ inline void printEndl() {
     std::cout << std::endl;
 }
 
-#include "to_string_CPP17.h"
-// #include "to_string_CPP11_GCC4.h"
-// #include "to_string_CPP11_GCC12.h"
-// #include "to_string_CPP11_GCC13.h"
-
 // declaration
 template<typename T>
 void printSeqHelp(const T &data, char leftBound, char rightBound);
 template<typename T>
 void printDictHelp(const T &data, char leftBound = '{', char rightBound = '}');
 
+// to string
+// #include "to_string_CPP17.h"
+// #include "to_string_CPP11_GCC4.h"
+#include "to_string_CPP11_GCC12.h"
+
+// print
 template<class T, class = void>
-struct CanOutput : std::false_type {};
+struct StdOutput : std::false_type {};
 template<class T>
-struct CanOutput<
+struct StdOutput<
     T,
     decltype(std::declval<std::ostream &>() << std::declval<T>(), void())>
     : std::true_type {};
 
 template<class T, class = void>
-struct NeedToString : std::false_type {};
+struct ToString : std::false_type {};
 template<class T>
-struct NeedToString<T, decltype(to_string(std::declval<T>()), void())>
+struct ToString<T, decltype(to_string(std::declval<T>()), void())>
     : std::true_type {};
 
+template<class T, class = void>
+struct ObjPrintMethod : std::false_type {};
+template<class T>
+struct ObjPrintMethod<T, decltype(std::declval<T>().ObjPrint(), void())>
+    : std::true_type {};
+
+template<class T, class = void>
+struct PtrObjPrintMethod : std::false_type {};
+template<class T>
+struct PtrObjPrintMethod<T, decltype(std::declval<T>()->ObjPrint(), void())>
+    : std::true_type {};
+
+enum class PrintFlag {
+    StdOutput,
+    ToString,
+    ObjPrintMethod,
+    PtrObjPrintMethod,
+    Error,
+};
+
 template<typename T>
-typename std::enable_if<CanOutput<T>::value && NeedToString<T>::value, void>::
-    type
-    printRecursion(const T &data) {
-    std::cout << data;
-    // printString(to_string(data));
+constexpr PrintFlag get_flag() {
+    return ObjPrintMethod<T>::value
+               ? PrintFlag::ObjPrintMethod
+               : (PtrObjPrintMethod<T>::value
+                      ? PrintFlag::PtrObjPrintMethod
+                      : (ToString<T>::value
+                             ? PrintFlag::ToString
+                             : (StdOutput<T>::value ? PrintFlag::StdOutput
+                                                    : PrintFlag::Error)));
 }
 
 template<typename T>
-typename std::enable_if<CanOutput<T>::value && !NeedToString<T>::value, void>::
-    type
-    printRecursion(const T &data) {
-    std::cout << data;
+typename std::enable_if<get_flag<T>() == PrintFlag::ObjPrintMethod>::type
+printRecursion(const T &data) {
+    data.ObjPrint();
 }
 
 template<typename T>
-typename std::enable_if<!CanOutput<T>::value && NeedToString<T>::value, void>::
-    type
-    printRecursion(const T &data) {
+typename std::enable_if<get_flag<T>() == PrintFlag::PtrObjPrintMethod>::type
+printRecursion(const T &data) {
+    data->ObjPrint();
+}
+
+template<typename T>
+typename std::enable_if<get_flag<T>() == PrintFlag::ToString>::type
+printRecursion(const T &data) {
     printString(to_string(data));
+}
+
+template<typename T>
+typename std::enable_if<get_flag<T>() == PrintFlag::StdOutput>::type
+printRecursion(const T &data) {
+    std::cout << data;
 }
 
 template<typename T, std::size_t N>
@@ -174,6 +212,34 @@ void printRecursion(const std::tuple<Args...> &t) {
     printChar(')');
 }
 
+#if __cplusplus >= 201703L
+
+template<typename... Types>
+void printRecursion(const std::nullopt_t &t) {
+    printString("std::nullopt");
+}
+
+template<typename T>
+void printRecursion(const std::optional<T> &t) {
+    if (!t.has_value()) {
+        printString("std::nullopt");
+    } else {
+        printRecursion(t.value());
+    }
+}
+
+template<typename... Types>
+void printRecursion(const std::monostate &t) {
+    printString("std::monostate");
+}
+
+template<typename... Types>
+void printRecursion(const std::variant<Types...> &t) {
+    std::visit([](const auto &v) { printRecursion(v); }, t);
+}
+
+#endif
+
 template<typename T>
 void printSeqHelp(const T &data, char leftbound, char rightbound) {
     printChar(leftbound);
@@ -219,9 +285,44 @@ void printDictHelp(const T &data, char leftbound, char rightbound) {
 
 } // namespace ObjPrint
 
-#define println(var)                   \
+#define PRINT(var) ObjPrint::printRecursion(var);
+
+#define print(var)                  \
+    do {                            \
+        std::cout << #var << " = "; \
+        PRINT(var)                  \
+    } while (false);
+
+#define PRINTLN(var)                   \
     do {                               \
-        std::cout << #var << " = ";    \
         ObjPrint::printRecursion(var); \
         ObjPrint::printEndl();         \
     } while (false);
+
+#define println(var)                \
+    do {                            \
+        std::cout << #var << " = "; \
+        PRINTLN(var)                \
+    } while (false);
+
+// #define PRINTS(arg, ...)                                       \
+//     do {                                                       \
+//         PRINT(arg);                                            \
+//         PRINT(", ");                                           \
+//         if ((sizeof...(__VA_ARGS__)) > 0) PRINTS(__VA_ARGS__); \
+//     } while (false);
+
+// #define prints(arg, ...)                                       \
+//     do {                                                       \
+//         print(arg);                                            \
+//         PRINT(", ");                                           \
+//         if ((sizeof...(__VA_ARGS__)) > 0) prints(__VA_ARGS__); \
+//     } while (false);
+
+// #define printsln(arg, ...)                                       \
+//     do {                                                         \
+//         print(arg);                                              \
+//         PRINT(", ");                                             \
+//         if ((sizeof...(__VA_ARGS__)) > 0) printsln(__VA_ARGS__); \
+//         ObjPrint::printEndl();                                   \
+//     } while (false);
