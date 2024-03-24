@@ -12,12 +12,16 @@ template<typename K, typename V, typename Hash = std::hash<K>>
 class LRU {
   public:
     explicit LRU(std::size_t cap) : cap_(cap) {
-        if (cap == 0) { throw AssertException("容量必须大于0."); }
+        if (cap == 0) {
+            throw AssertException("容量必须大于0.");
+        }
     };
 
   private:
     void update(const K &k, const V &v) {
-        if (dict_.contains(k)) { list_.erase(dict_[k]); }
+        if (dict_.contains(k)) {
+            list_.erase(dict_[k]);
+        }
         list_.push_front({k, v});
         dict_[k] = list_.begin();
     }
@@ -31,12 +35,16 @@ class LRU {
     void put(const K &k, const V &v) {
         assert(dict_.size() == list_.size());
         update(k, v);
-        while (list_.size() > cap_) { evict(); }
+        while (list_.size() > cap_) {
+            evict();
+        }
     }
 
     std::optional<V> get(const K &k) {
         assert(dict_.size() == list_.size());
-        if (!dict_.contains(k)) { return std::nullopt; }
+        if (!dict_.contains(k)) {
+            return std::nullopt;
+        }
         std::optional<V> v = dict_[k]->v_;
         update(k, v.value());
         return v;
