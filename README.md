@@ -11,3 +11,5 @@
 
 + [缓存替换策略](./CacheImpl/)
   + [LRU](./CacheImpl/LRU.h)
+  + [LFU](./CacheImpl/LFU.h)
+  + [LRU-k](./CacheImpl/README.md#lru-k)
