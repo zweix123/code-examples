@@ -14,13 +14,13 @@
   + [LFU](./CacheImpl/LFU.h)
   + [LRU-k](./CacheImpl/README.md#lru-k)
 
-# Talk is cheap. Show me the code.
+## Talk is cheap. Show me the code.
 
-## 空类实例大小和虚表
+### 空类实例大小和虚表
 
 + [sizeof_class.cpp](./example/sizeof_class.cpp)
 + [virtual_function.cpp](./example/virtual_function.cpp)
 
-## 编译器是怎么处理lambda的呢？
+### 编译器是怎么处理lambda的呢？
 
 + [lambda_impl.cpp](./example/lambda_impl.cpp)
