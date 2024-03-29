@@ -20,3 +20,7 @@
 
 + [sizeof_class.cpp](./example/sizeof_class.cpp)
 + [virtual_function.cpp](./example/virtual_function.cpp)
+
+## 编译器是怎么处理lambda的呢？
+
++ [lambda_impl.cpp](./example/lambda_impl.cpp)

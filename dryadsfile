@@ -1,3 +1,4 @@
+import os
 import sys
 
 from dryads import Dryads, DryadsFlag  # type: ignore
@@ -6,20 +7,46 @@ example_cmds = {
     DryadsFlag.PrefixCmd: "cd ./build/example/",
     "sizeof_class": "./sizeof_class",
     "virtual_function": "./virtual_function",
+    "lambda_impl": "./lambda_impl",
 }
 
 test_cmds = {
     DryadsFlag.PrefixCmd: "cd ./build/test/",
     "common": "./common",
-    "warm-up": "./warmup",
-    "HashTable": "./HashTable/OpenAddressing",
-    "ObjPrint": "./ObjPrint/ObjPrint",
+    "warmup": "./warmup",
+    "HashTable": {
+        DryadsFlag.PrefixCmd: "cd ./HashTable/",
+        "OpenAddressing": "./OpenAddressing",
+    },
+    "ObjPrint": {
+        DryadsFlag.PrefixCmd: "cd ./ObjPrint/",
+        "ObjPrint": "ObjPrint",
+    },
     "CacheImpl": {
         DryadsFlag.PrefixCmd: "cd ./CacheImpl/",
         "LRU": "./LRU",
         "LFU": "./LFU",
     },
 }
+
+
+def check():
+    def dfs(cmds: dict | str, pre_path: str):
+        if isinstance(cmds, dict):
+            for k, v in cmds.items():
+                if isinstance(k, DryadsFlag):
+                    continue
+                assert isinstance(k, str), k
+                dfs(v, os.path.join(pre_path, k))
+        else:
+            pre_path += ".cpp"
+            assert os.path.exists(pre_path), pre_path
+
+    dfs(test_cmds, os.path.join(".", "test"))
+    dfs(example_cmds, os.path.join(".", "example"))
+
+
+check()
 
 if sys.platform == "win32":
 
