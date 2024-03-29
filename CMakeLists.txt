@@ -14,7 +14,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 project(
-    code-exmaples
+    code-examples
     VERSION 0.0.1
     LANGUAGES C CXX)
 
@@ -22,3 +22,4 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/googletest)
 include_directories(${GTEST_INCLUDE_DIRS})
 
 add_subdirectory(test)
+add_subdirectory(example)

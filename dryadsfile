@@ -2,6 +2,12 @@ import sys
 
 from dryads import Dryads, DryadsFlag  # type: ignore
 
+example_cmds = {
+    DryadsFlag.PrefixCmd: "cd ./build/example/",
+    "sizeof_class": "./sizeof_class",
+    "virtual_function": "./virtual_function",
+}
+
 test_cmds = {
     DryadsFlag.PrefixCmd: "cd ./build/test/",
     "common": "./common",
@@ -11,6 +17,7 @@ test_cmds = {
     "CacheImpl": {
         DryadsFlag.PrefixCmd: "cd ./CacheImpl/",
         "LRU": "./LRU",
+        "LFU": "./LFU",
     },
 }
 
@@ -29,6 +36,7 @@ if sys.platform == "win32":
         return node
 
     test_cmds = dfs(test_cmds)
+    example_cmds = dfs(example_cmds)
 
 
 CMDS = {
@@ -44,6 +52,7 @@ CMDS = {
     ],
     "test-all": "cmake --build build --target test",
     "test": test_cmds,
+    "example": example_cmds,
     "cloc": "cloc --git `git branch --show-current`",
 }
 
