@@ -16,25 +16,32 @@ class LRU {
             throw AssertException("容量必须大于0.");
         }
     };
+    ~LRU() {
+        while (!list_.empty()) {
+            evict();
+        }
+    }
 
   private:
-    void update(const K &k, const V &v) {
+    void update(const K &k, V *vp) {
         if (dict_.contains(k)) {
             list_.erase(dict_[k]);
         }
-        list_.push_front({k, v});
+        list_.push_front({k, vp});
         dict_[k] = list_.begin();
     }
     void evict() {
         const auto iterEnd = std::prev(std::end(list_));
         dict_.erase(iterEnd->k_);
+        delete list_.back().vp_;
         list_.pop_back();
     }
 
   public:
     void put(const K &k, const V &v) {
         assert(dict_.size() == list_.size());
-        update(k, v);
+        V *nvp = new V(v);
+        update(k, nvp);
         while (list_.size() > cap_) {
             evict();
         }
@@ -45,9 +52,10 @@ class LRU {
         if (!dict_.contains(k)) {
             return std::nullopt;
         }
-        std::optional<V> v = dict_[k]->v_;
-        update(k, v.value());
-        return v;
+        V *vp = dict_[k]->vp_;
+        update(k, vp);
+
+        return *vp;
     }
 
     friend std::ostream &operator<<(std::ostream &out, const LRU<K, V> &lru) {
@@ -59,7 +67,7 @@ class LRU {
             if (first) first = false;
             else
                 out << " | ";
-            out << "(" << iter->k_ << ", " << iter->v_ << ")";
+            out << "(" << iter->k_ << ", " << *iter->vp_ << ")";
         }
         out << "]";
         return out;
@@ -69,7 +77,8 @@ class LRU {
     std::size_t cap_;
     struct Node {
         K k_;
-        V v_;
+        V *vp_; // 减小拷贝, 每次对LRU Cache的访问都会修改里面的元素,
+                // 这里会有比较多的拷贝. 而不仅仅是get是的这一次基本的拷贝.
     };
     std::list<Node> list_;
     std::unordered_map<K, typename std::list<Node>::iterator, Hash> dict_;
