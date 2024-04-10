@@ -2,12 +2,14 @@ import os
 import sys
 
 from dryads import Dryads, DryadsFlag  # type: ignore
+from typing import Union
 
 example_cmds = {
     DryadsFlag.PrefixCmd: "cd ./build/example/",
     "sizeof_class": "./sizeof_class",
     "virtual_function": "./virtual_function",
     "lambda_impl": "./lambda_impl",
+    "two_phase_locking": "./two_phase_locking"
 }
 
 test_cmds = {
@@ -31,7 +33,7 @@ test_cmds = {
 
 
 def check():
-    def dfs(cmds: dict | str, pre_path: str):
+    def dfs(cmds: Union[dict, str], pre_path: str):
         if isinstance(cmds, dict):
             for k, v in cmds.items():
                 if isinstance(k, DryadsFlag):
