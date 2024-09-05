@@ -23,3 +23,5 @@ ds
   + [virtual_function.cpp](./misc/virtual_function.cpp)
 
 + 编译器是怎么处理lambda的呢: [lambda_impl.cpp](./misc/lambda_impl.cpp)
+
++ 支持restart的单例模式: [multipleton](./multipleton/)
