@@ -4,7 +4,7 @@
       > 不知道这个网站还能存在多久
 */
 
-#include "ObjPrint.h"
+#include "obj_print.h"
 #include <iostream>
 
 class Base {

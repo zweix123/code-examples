@@ -1,8 +1,6 @@
 #include "LFU.h"
-
+#include "obj_print.h"
 #include <gtest/gtest.h>
-
-#include "../ObjPrint/ObjPrint.h"
 
 TEST(LRU, leetcode1) {
     auto t = LFU<int, int>(2);

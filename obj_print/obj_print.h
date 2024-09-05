@@ -70,9 +70,10 @@ template<typename T>
 void printDictHelp(const T &data, char leftBound = '{', char rightBound = '}');
 
 // to string
-// #include "to_string_CPP17.h"
-// #include "to_string_CPP11_GCC4.h"
-#include "to_string_CPP11_GCC12.h"
+// #include "to_string_cpp17.h"
+// #include "to_string_cpp11_gcc4.h"
+// #include "to_string_cpp11_gcc12.h"
+#include "to_string.h"
 
 // print
 template<class T, class = void>

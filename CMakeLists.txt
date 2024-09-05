@@ -9,17 +9,20 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Release)
-    message("Setting default build type to Release")
+  set(CMAKE_BUILD_TYPE Release)
+  message("Setting default build type to Release")
 endif()
 
 project(
-    code-examples
-    VERSION 0.0.1
-    LANGUAGES C CXX)
+  code-examples
+  VERSION 0.0.1
+  LANGUAGES C CXX)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/googletest)
 include_directories(${GTEST_INCLUDE_DIRS})
 
 add_subdirectory(test)
-add_subdirectory(example)
+add_subdirectory(misc)
+add_subdirectory(obj_print/test)
+add_subdirectory(cache/test)
+add_subdirectory(hash_table/test)

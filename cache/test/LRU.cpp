@@ -1,6 +1,5 @@
 #include "LRU.h"
-#include "../ObjPrint/ObjPrint.h"
-
+#include "obj_print.h"
 #include <gtest/gtest.h>
 
 void createInstance() {

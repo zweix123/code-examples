@@ -44,12 +44,16 @@ class HashTable {
                     return tombstone != nullptr ? tombstone : &data_[index];
                 } else if (*now == BucketType::Tombstone) {
                     // 遇到墓碑了, 将其存起来(只存第一个), 继续找
-                    if (tombstone == nullptr) { tombstone = &data_[index]; }
+                    if (tombstone == nullptr) {
+                        tombstone = &data_[index];
+                    }
                 }
             } else {
                 // 具体的值, 找到有效的值了, 检测并返回
                 auto p = std::get_if<T>(&data_[index]);
-                if (*p == value) { return &data_[index]; }
+                if (*p == value) {
+                    return &data_[index];
+                }
             }
             ++index;
             if (index == data_.size()) index = 0;
@@ -77,7 +81,9 @@ class HashTable {
     }
     void insert(const T &value) {
         wlock lock(mutex_);
-        if (1.0 * (size_ + 1) / data_.size() > FACTOR) { adjust(); }
+        if (1.0 * (size_ + 1) / data_.size() > FACTOR) {
+            adjust();
+        }
         auto *entry = find(value);
         *entry = value;
         ++size_;

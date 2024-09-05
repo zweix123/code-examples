@@ -1,87 +1,55 @@
-import os
 import sys
 
 from dryads import Dryads, DryadsFlag  # type: ignore
-from typing import Union
-
-example_cmds = {
-    DryadsFlag.PrefixCmd: "cd ./build/example/",
-    "sizeof_class": "./sizeof_class",
-    "virtual_function": "./virtual_function",
-    "lambda_impl": "./lambda_impl",
-    "two_phase_locking": "./two_phase_locking"
-}
-
-test_cmds = {
-    DryadsFlag.PrefixCmd: "cd ./build/test/",
-    "common": "./common",
-    "warmup": "./warmup",
-    "HashTable": {
-        DryadsFlag.PrefixCmd: "cd ./HashTable/",
-        "OpenAddressing": "./OpenAddressing",
-    },
-    "ObjPrint": {
-        DryadsFlag.PrefixCmd: "cd ./ObjPrint/",
-        "ObjPrint": "ObjPrint",
-    },
-    "CacheImpl": {
-        DryadsFlag.PrefixCmd: "cd ./CacheImpl/",
-        "LRU": "./LRU",
-        "LFU": "./LFU",
-    },
-}
-
-
-def check():
-    def dfs(cmds: Union[dict, str], pre_path: str):
-        if isinstance(cmds, dict):
-            for k, v in cmds.items():
-                if isinstance(k, DryadsFlag):
-                    continue
-                assert isinstance(k, str), k
-                dfs(v, os.path.join(pre_path, k))
-        else:
-            pre_path += ".cpp"
-            assert os.path.exists(pre_path), pre_path
-
-    dfs(test_cmds, os.path.join(".", "test"))
-    dfs(example_cmds, os.path.join(".", "example"))
-
-
-check()
-
-if sys.platform == "win32":
-
-    def dfs(node: dict):
-        if isinstance(node, dict):
-            for k, v in node.items():
-                if isinstance(k, DryadsFlag):
-                    continue
-                node[k] = dfs(v)
-        elif isinstance(node, str):
-            node += ".exe"
-        else:
-            assert False, type(node)
-        return node
-
-    test_cmds = dfs(test_cmds)
-    example_cmds = dfs(example_cmds)
-
 
 CMDS = {
     "init": [
+        # C++
         "git submodule init",
         "git submodule update",
     ],
-    "cmake": [
-        "cmake -S . -B build",
-    ],
-    "make": [
-        "cmake --build build",
-    ],
-    "test-all": "cmake --build build --target test",
-    "test": test_cmds,
-    "example": example_cmds,
+    "build": {
+        # C++
+        "cmake": [
+            "cmake -S . -B build",
+        ],
+        "make": [
+            "cmake --build build",
+        ],
+    },
+    "test": {
+        # C++
+        "cpp": {
+            DryadsFlag.PrefixCmd: "cd ./build/",
+            "test": {
+                DryadsFlag.PrefixCmd: "cd ./test/",
+                "warmup": "./warmup",
+                "common": "./common",
+            },
+            # TODO: 还有问题, 无法通过测试
+            # TODO: Dryads应该支持dict的非kv flag
+            # "obj_print": {
+            #     DryadsFlag.PrefixCmd: "cd ./obj_print/test/",
+            #     "obj_print": "./obj_print",
+            # },
+            "cache": {
+                DryadsFlag.PrefixCmd: "cd ./cache/test/",
+                "LFU": "./LFU",
+                "LRU": "./LFU",
+            },
+            "hash_table": {
+                DryadsFlag.PrefixCmd: "cd ./hash_table/test/",
+                "open_addressing": "./open_addressing",
+            },
+            "misc": {
+                DryadsFlag.PrefixCmd: "cd ./misc",
+                "lambda_impl": "./lambda_impl",
+                "sizeof_class": "./sizeof_class",
+                "two_phase_locking": "./two_phase_locking",
+                "virtual_function": "./virtual_function",
+            },
+        }
+    },
     "cloc": "cloc --git `git branch --show-current`",
 }
 

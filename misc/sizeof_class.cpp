@@ -1,4 +1,4 @@
-#include "ObjPrint.h"
+#include "obj_print.h"
 #include <cassert>
 
 class EmptyClass {};

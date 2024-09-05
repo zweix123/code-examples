@@ -6,7 +6,7 @@
 #include <ostream>
 #include <unordered_map>
 
-#include "../common/Exception.h"
+#include "../common/exception.h"
 
 template<typename K, typename V, typename Hash = std::hash<K>>
 class LRU {

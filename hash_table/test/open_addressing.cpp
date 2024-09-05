@@ -1,4 +1,4 @@
-#include "OpenAddressing.h"
+#include "open_addressing.h"
 #include <algorithm>
 #include <cstring>
 #include <random>
@@ -136,18 +136,26 @@ TEST(OpenAddressingTest, MultiThread) {
 
     for (int i = 0; i < THREAD_COUNT; ++i) {
         threads.emplace_back([&]() {
-            for (int j = 0; j < INSERT_COUNT; ++j) { ht.insert(j); }
+            for (int j = 0; j < INSERT_COUNT; ++j) {
+                ht.insert(j);
+            }
         });
     }
 
-    for (auto &t : threads) { t.join(); }
+    for (auto &t : threads) {
+        t.join();
+    }
 
     threads.clear();
     for (int i = 0; i < THREAD_COUNT; ++i) {
         threads.emplace_back([&]() {
-            for (int j = 0; j < FIND_COUNT; ++j) { ht.contains(j); }
+            for (int j = 0; j < FIND_COUNT; ++j) {
+                ht.contains(j);
+            }
         });
     }
 
-    for (auto &t : threads) { t.join(); }
+    for (auto &t : threads) {
+        t.join();
+    }
 }

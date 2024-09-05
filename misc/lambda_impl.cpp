@@ -4,7 +4,7 @@
 C++11中的lambda，std::function以及std:bind](https://paul.pub/cpp-lambda-function-bind/)
 */
 
-#include "ObjPrint.h"
+#include "obj_print.h"
 
 int main() {
     auto func_no_cap = [](int a, int b) {

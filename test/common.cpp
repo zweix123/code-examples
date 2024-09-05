@@ -1,4 +1,4 @@
-#include "Exception.h"
+#include "exception.h"
 #include <gtest/gtest.h>
 
 void throwAssertException() {
@@ -8,5 +8,7 @@ void throwAssertException() {
 TEST(AssertException, general) {
     try {
         throwAssertException();
-    } catch (const AssertException &e) { ASSERT_EQ(e.what(), "msg"); }
+    } catch (const AssertException &e) {
+        ASSERT_EQ(e.what(), "msg");
+    }
 }
