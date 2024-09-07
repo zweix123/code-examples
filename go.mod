@@ -1,3 +1,3 @@
 module github.com/zweix123/code-examples
 
-go 1.22.5
+go 1.21
