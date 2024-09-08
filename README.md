@@ -2,9 +2,9 @@
 
 用来放置一些小Demo
 
-```bash
-ds
-```
++ SOP: idea -> code -> `ds` -> readme
+
+----
 
 + [哈希表](./hash_table/)
   + [一次探测开放寻址哈希表](./hash_table/open_addressing.h)

@@ -1,5 +1,3 @@
-import sys
-
 from dryads import Dryads, DryadsFlag  # type: ignore
 
 CMDS = {
@@ -7,6 +5,7 @@ CMDS = {
         # C++
         "git submodule init",
         "git submodule update",
+        "go mod tidy",
     ],
     "build": {
         # C++
@@ -15,6 +14,10 @@ CMDS = {
         ],
         "make": [
             "cmake --build build",
+        ],
+        # Go
+        "build": [
+            "go build .",
         ],
     },
     "test": {
@@ -48,7 +51,11 @@ CMDS = {
                 "two_phase_locking": "./two_phase_locking",
                 "virtual_function": "./virtual_function",
             },
-        }
+        },
+        # Go
+        "go": {
+            "diff": "cd ./diff && go test -v .",
+        },
     },
     "cloc": "cloc --git `git branch --show-current`",
 }

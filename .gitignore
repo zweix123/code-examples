@@ -83,3 +83,9 @@ public/
 
 # Python
 .mypy_cache
+
+# Golang
+code-examples
+
+# Added by cargo
+/target
