@@ -2,7 +2,7 @@ enable_testing()
 include(GoogleTest)
 
 # include
-include_directories(${PROJECT_SOURCE_DIR}/skip_list)
+include_directories(${PROJECT_SOURCE_DIR}/skiplist)
 
 file(GLOB srouce_filepaths CONFIGURE_DEPENDS *.cpp)
 

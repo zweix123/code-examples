@@ -51,9 +51,9 @@ CMDS = {
                 "two_phase_locking": "./two_phase_locking",
                 "virtual_function": "./virtual_function",
             },
-            "skip_list": {
-                DryadsFlag.PrefixCmd: "cd ./skip_list/test/",
-                "skip_list": "./skip_list",
+            "skiplist": {
+                DryadsFlag.PrefixCmd: "cd ./skiplist/test/",
+                "skiplist": "./skiplist",
             },
         },
         # Go
