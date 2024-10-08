@@ -27,3 +27,5 @@ add_subdirectory(obj_print/test)
 add_subdirectory(cache/test)
 add_subdirectory(hash_table/test)
 add_subdirectory(skiplist/test)
+
+add_executable(main main.cpp)

@@ -1,6 +1,9 @@
 from dryads import Dryads, DryadsFlag  # type: ignore
 
 CMDS = {
+    "demo": {
+        "cpp": "cmake -S . -B build && cmake --build build && ./build/main",
+    },
     "init": [
         # C++
         "git submodule init",
