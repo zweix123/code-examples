@@ -40,7 +40,7 @@ CMakeCache.txt
 CMakeFiles
 CMakeScripts
 Testing
-Makefile
+# Makefile
 cmake_install.cmake
 install_manifest.txt
 compile_commands.json
@@ -83,9 +83,6 @@ public/
 
 # Python
 .mypy_cache
-
-# Golang
-code-examples
 
 # Added by cargo
 /target
